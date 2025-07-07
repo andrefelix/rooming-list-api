@@ -10,6 +10,12 @@ export class RoomingListsRepository {
     private readonly repo: Repository<RoomingLists>,
   ) {}
 
+  async findAllWithBookings(): Promise<RoomingLists[]> {
+    return this.repo.find({
+      relations: { roomingListBookings: { booking: true } },
+    });
+  }
+
   async findOneById(id: number): Promise<RoomingLists | null> {
     return this.repo.findOne({ where: { roomingListId: id } });
   }
