@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { BookingService } from './booking.service';
 import { RoomingListsRepository } from '../repositories/rooming-lists.repository';
+import { RoomingListsQueryDTO } from '../dto/rooming-lists-query.dto';
 
 describe('BookingService', () => {
   let service: BookingService;
@@ -34,10 +35,25 @@ describe('BookingService', () => {
       const spy = jest.spyOn(roomingListsRepo, 'findAllWithBookings');
       spy.mockResolvedValue([]);
 
-      const result = await service.getAllRoomingListsWithBookings();
+      const result = await service.getAllRoomingListsWithBookings({});
 
       expect(result).toEqual([]);
       expect(spy).toHaveBeenCalled();
+    });
+
+    it('should return an empty array if no rooming lists match filters', async () => {
+      const filters: RoomingListsQueryDTO = {
+        rfpName: 'nonexistent',
+        agreement_type: 'staff',
+      };
+
+      const spy = jest.spyOn(roomingListsRepo, 'findAllWithBookings');
+      spy.mockResolvedValue([]);
+
+      const result = await service.getAllRoomingListsWithBookings(filters);
+
+      expect(result).toEqual([]);
+      expect(spy).toHaveBeenCalledWith(filters);
     });
 
     it('should return rooming lists with their bookings', async () => {
@@ -86,7 +102,12 @@ describe('BookingService', () => {
         },
       ] as any[]);
 
-      const result = await service.getAllRoomingListsWithBookings();
+      const filters: RoomingListsQueryDTO = {
+        rfpName: 'ACL',
+        agreement_type: 'staff',
+      };
+
+      const result = await service.getAllRoomingListsWithBookings(filters);
 
       expect(result.length).toBe(1);
       expect(result[0].roomingListId).toBe(testedRoominglistId);
@@ -94,6 +115,11 @@ describe('BookingService', () => {
       expect(
         result[0].roomingListBookings.every(
           (rlb) => rlb.roomingListId === testedRoominglistId,
+        ),
+      ).toBeTruthy();
+      expect(
+        result.every((roomingList) =>
+          roomingList.rfpName.includes(filters.rfpName || ''),
         ),
       ).toBeTruthy();
     });

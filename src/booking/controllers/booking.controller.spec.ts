@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { BookingController } from './booking.controller';
 import { BookingService } from '../services/booking.service';
 import { RoomingListsRepository } from '../repositories/rooming-lists.repository';
+import { RoomingListsQueryDTO } from '../dto/rooming-lists-query.dto';
 
 describe('BookingController', () => {
   let controller: BookingController;
@@ -37,10 +38,25 @@ describe('BookingController', () => {
       const spy = jest.spyOn(service, 'getAllRoomingListsWithBookings');
       spy.mockResolvedValue([]);
 
-      const result = await controller.getAllRoomingListsWithBookings();
+      const result = await controller.getAllRoomingListsWithBookings({});
 
       expect(result).toEqual([]);
       expect(spy).toHaveBeenCalled();
+    });
+
+    it('should return an empty array if no rooming lists match filters', async () => {
+      const filters: RoomingListsQueryDTO = {
+        rfpName: 'nonexistent',
+        agreement_type: 'staff',
+      };
+
+      const spy = jest.spyOn(service, 'getAllRoomingListsWithBookings');
+      spy.mockResolvedValue([]);
+
+      const result = await controller.getAllRoomingListsWithBookings(filters);
+
+      expect(result).toEqual([]);
+      expect(spy).toHaveBeenCalledWith(filters);
     });
 
     it('should return rooming lists with their bookings', async () => {
@@ -89,7 +105,12 @@ describe('BookingController', () => {
         },
       ] as any[]);
 
-      const result = await controller.getAllRoomingListsWithBookings();
+      const filters: RoomingListsQueryDTO = {
+        rfpName: 'ACL',
+        agreement_type: 'staff',
+      };
+
+      const result = await controller.getAllRoomingListsWithBookings(filters);
 
       expect(result.length).toBe(1);
       expect(result[0].roomingListId).toBe(testedRoominglistId);
