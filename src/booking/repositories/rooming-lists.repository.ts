@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RoomingLists } from '../entities/rooming-lists.entity';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 
 @Injectable()
 export class RoomingListsRepository {
@@ -10,9 +10,22 @@ export class RoomingListsRepository {
     private readonly repo: Repository<RoomingLists>,
   ) {}
 
-  async findAllWithBookings(): Promise<RoomingLists[]> {
+  async findAllWithBookings(filters: {
+    rfpName?: string;
+    agreement_type?: string;
+  }): Promise<RoomingLists[]> {
     return this.repo.find({
-      relations: { roomingListBookings: { booking: true } },
+      where: {
+        ...(filters.rfpName ? { rfpName: ILike(`%${filters.rfpName}%`) } : {}),
+        ...(filters.agreement_type
+          ? { agreement_type: filters.agreement_type }
+          : {}),
+      },
+      relations: {
+        roomingListBookings: {
+          booking: true,
+        },
+      },
     });
   }
 
