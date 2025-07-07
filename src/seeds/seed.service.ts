@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Bookings } from 'src/booking/entities/bookings.entity';
@@ -10,6 +10,8 @@ import { RoomingListsRepository } from 'src/booking/repositories/rooming-lists.r
 
 @Injectable()
 export class SeedService {
+  private readonly logger: Logger = new Logger(SeedService.name);
+
   constructor(
     private readonly roomingListsRepo: RoomingListsRepository,
     private readonly bookingsRepo: BookingsRepository,
@@ -21,7 +23,7 @@ export class SeedService {
     await this.seedBookings();
     await this.seedRoomingListBookings();
 
-    console.log('All data has been seeded.');
+    this.logger.log('All data has been seeded.');
   }
 
   private async seedRoomingLists() {
@@ -37,7 +39,7 @@ export class SeedService {
       }
     }
 
-    console.log('RoomingLists seeded.');
+    this.logger.log('RoomingLists seeded.');
   }
 
   private async seedBookings() {
@@ -51,7 +53,7 @@ export class SeedService {
       }
     }
 
-    console.log('Bookings seeded.');
+    this.logger.log('Bookings seeded.');
   }
 
   private async seedRoomingListBookings() {
@@ -73,7 +75,7 @@ export class SeedService {
       }
     }
 
-    console.log('RoomingListBookings seeded. ');
+    this.logger.log('RoomingListBookings seeded. ');
   }
 
   private loadJson(filename: string): any {

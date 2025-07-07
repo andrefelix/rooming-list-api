@@ -2,9 +2,12 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
 import helmet from 'helmet';
+import { LOG_LEVELS } from '@nestjs/common';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: LOG_LEVELS,
+  });
 
   const whiteListedCors = (process.env.CORS_ALLOWED_ORIGINS || '').split(',');
 
