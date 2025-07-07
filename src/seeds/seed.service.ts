@@ -27,53 +27,59 @@ export class SeedService {
   }
 
   private async seedRoomingLists() {
-    const data = this.loadJson('rooming-lists.json') as RoomingLists[];
+    const roomingLists = this.loadJson('rooming-lists.json') as RoomingLists[];
 
-    for (const item of data) {
-      const exists = await this.roomingListsRepo.findOneById(
-        item.roomingListId,
-      );
+    await Promise.all(
+      roomingLists.map(async (item) => {
+        const exists = await this.roomingListsRepo.findOneById(
+          item.roomingListId,
+        );
 
-      if (!exists) {
-        await this.roomingListsRepo.create(item);
-      }
-    }
+        if (!exists) {
+          return this.roomingListsRepo.create(item);
+        }
+      }),
+    );
 
     this.logger.log('RoomingLists seeded.');
   }
 
   private async seedBookings() {
-    const data = this.loadJson('bookings.json') as Bookings[];
+    const bookings = this.loadJson('bookings.json') as Bookings[];
 
-    for (const item of data) {
-      const exists = await this.bookingsRepo.findOneById(item.bookingId);
+    await Promise.all(
+      bookings.map(async (item) => {
+        const exists = await this.bookingsRepo.findOneById(item.bookingId);
 
-      if (!exists) {
-        await this.bookingsRepo.create(item);
-      }
-    }
+        if (!exists) {
+          return this.bookingsRepo.create(item);
+        }
+      }),
+    );
 
     this.logger.log('Bookings seeded.');
   }
 
   private async seedRoomingListBookings() {
-    const data = this.loadJson(
+    const roomingListBookings = this.loadJson(
       'rooming-list-bookings.json',
     ) as RoomingListBookings[];
 
-    for (const item of data) {
-      const exists = await this.roomingListBookingsRepo.exists(
-        item.roomingListId,
-        item.bookingId,
-      );
+    await Promise.all(
+      roomingListBookings.map(async (item) => {
+        const exists = await this.roomingListBookingsRepo.exists(
+          item.roomingListId,
+          item.bookingId,
+        );
 
-      if (!exists) {
-        await this.roomingListBookingsRepo.create({
-          roomingListId: item.roomingListId,
-          bookingId: item.bookingId,
-        });
-      }
-    }
+        if (!exists) {
+          return this.roomingListBookingsRepo.create({
+            roomingListId: item.roomingListId,
+            bookingId: item.bookingId,
+          });
+        }
+      }),
+    );
 
     this.logger.log('RoomingListBookings seeded. ');
   }
