@@ -9,6 +9,7 @@ describe('ReservationService', () => {
 
   beforeEach(async () => {
     const mockRoomingListsRepo = {
+      findAllWithBookingsCountOnly: jest.fn(),
       findAllWithBookings: jest.fn(),
     };
 
@@ -30,7 +31,83 @@ describe('ReservationService', () => {
     expect(service).toBeDefined();
   });
 
-  describe('rooming-lists', () => {
+  describe('getAllRoomingLists', () => {
+    it('should return an empty array when no rooming lists are found', async () => {
+      const spy = jest.spyOn(roomingListsRepo, 'findAllWithBookingsCountOnly');
+      spy.mockResolvedValue([]);
+
+      const result = await service.getAllRoomingLists({});
+
+      expect(result).toEqual([]);
+      expect(spy).toHaveBeenCalled();
+    });
+
+    it('should return an empty array if no rooming lists match filters', async () => {
+      const filters: RoomingListsQueryDTO = {
+        rfpName: 'nonexistent',
+        agreement_type: 'staff',
+      };
+
+      const spy = jest.spyOn(roomingListsRepo, 'findAllWithBookingsCountOnly');
+      spy.mockResolvedValue([]);
+
+      const result = await service.getAllRoomingLists(filters);
+
+      expect(result).toEqual([]);
+      expect(spy).toHaveBeenCalledWith(filters);
+    });
+
+    it('should return rooming lists with their bookings count', async () => {
+      const spy = jest.spyOn(roomingListsRepo, 'findAllWithBookingsCountOnly');
+      spy.mockResolvedValue([
+        {
+          roomingListId: 5,
+          eventId: 2,
+          eventName: 'Ultra Miami',
+          hotelId: 101,
+          rfpName: 'RLM-2025',
+          cutOffDate: '2025-10-15',
+          status: 'completed',
+          agreement_type: 'staff',
+          bookingsCount: 2,
+        },
+        {
+          roomingListId: 8,
+          eventId: 2,
+          eventName: 'Ultra Miami',
+          hotelId: 101,
+          rfpName: 'RLM-2026',
+          cutOffDate: '2026-10-25',
+          status: 'received',
+          agreement_type: 'staff',
+          bookingsCount: 3,
+        },
+      ] as any[]);
+
+      const filters: RoomingListsQueryDTO = {
+        rfpName: 'RLM',
+        agreement_type: 'staff',
+      };
+
+      const result = await service.getAllRoomingLists(filters);
+
+      expect(spy).toHaveBeenCalledWith(filters);
+      expect(result.length).toBe(2);
+      expect(result[0].roomingListId).toBe(5);
+      expect(result[0].bookingsCount).toBe(2);
+      expect(result[1].roomingListId).toBe(8);
+      expect(result[1].bookingsCount).toBe(3);
+      expect(
+        result.every(
+          (roomingList) =>
+            roomingList.rfpName.includes(filters.rfpName || '') &&
+            roomingList.agreement_type === filters.agreement_type,
+        ),
+      ).toBeTruthy();
+    });
+  });
+
+  describe('getAllRoomingListsWithBookings', () => {
     it('should return an empty array when no rooming lists are found', async () => {
       const spy = jest.spyOn(roomingListsRepo, 'findAllWithBookings');
       spy.mockResolvedValue([]);
