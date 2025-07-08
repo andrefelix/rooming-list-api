@@ -17,9 +17,4 @@ export class ReservationController {
   getAllRoomingLists(@Query() query: RoomingListsQueryDTO) {
     return this.reservationService.getAllRoomingLists(query);
   }
-
-  @Get('rooming-list-bookings')
-  getAllRoomingListsWithBookings(@Query() query: RoomingListsQueryDTO) {
-    return this.reservationService.getAllRoomingListsWithBookings(query);
-  }
 }

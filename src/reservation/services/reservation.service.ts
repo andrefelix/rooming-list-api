@@ -34,8 +34,4 @@ export class ReservationService {
   async getAllRoomingLists(filters: RoomingListsQueryDTO) {
     return await this.roomingListsRepo.findAllWithBookingsCountOnly(filters);
   }
-
-  async getAllRoomingListsWithBookings(filters: RoomingListsQueryDTO) {
-    return await this.roomingListsRepo.findAllWithBookings(filters);
-  }
 }
