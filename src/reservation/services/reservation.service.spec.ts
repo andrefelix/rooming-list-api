@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ReservationService } from './reservation.service';
 import { RoomingListsRepository } from '../repositories/rooming-lists.repository';
 import { RoomingListsQueryDTO } from '../dto/rooming-lists-query.dto';
+import { BadRequestException } from '@nestjs/common';
 
 describe('ReservationService', () => {
   let service: ReservationService;
@@ -9,6 +10,7 @@ describe('ReservationService', () => {
 
   beforeEach(async () => {
     const mockRoomingListsRepo = {
+      findaAllBookingsByRoomingListId: jest.fn(),
       findAllWithBookingsCountOnly: jest.fn(),
       findAllWithBookings: jest.fn(),
     };
@@ -29,6 +31,109 @@ describe('ReservationService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  describe('getRoomingListBookings', () => {
+    it('should throw BadRequestException when roomingListId is invalid', async () => {
+      const spy = jest.spyOn(service, 'getRoomingListBookings');
+      spy.mockRejectedValue(new BadRequestException());
+
+      const invalidRoomingListId = 'invalid';
+
+      await expect(() =>
+        service.getRoomingListBookings({
+          roomingListId: invalidRoomingListId,
+        }),
+      ).rejects.toThrow(BadRequestException);
+      expect(spy).toHaveBeenCalled();
+    });
+
+    it('should throw BadRequestException when roomingList is not found', async () => {
+      const spy = jest.spyOn(service, 'getRoomingListBookings');
+      spy.mockRejectedValue(new BadRequestException());
+
+      const roomingListIdThatDontMatch = '11';
+
+      await expect(() =>
+        service.getRoomingListBookings({
+          roomingListId: roomingListIdThatDontMatch,
+        }),
+      ).rejects.toThrow(BadRequestException);
+      expect(spy).toHaveBeenCalled();
+    });
+
+    it('should return a empty bookings array when roomingList has no bookings', async () => {
+      const spy = jest.spyOn(
+        roomingListsRepo,
+        'findaAllBookingsByRoomingListId',
+      );
+
+      spy.mockResolvedValue({
+        roomingListId: 1,
+        roomingListBookings: [],
+      } as any);
+
+      const result = await service.getRoomingListBookings({
+        roomingListId: '1',
+      });
+
+      expect(result.roomingListId).toBe(1);
+      expect(result.bookings).toEqual([]);
+      expect(spy).toHaveBeenCalled();
+    });
+
+    it('should return a bookings array when roomingList has bookings', async () => {
+      const spy = jest.spyOn(
+        roomingListsRepo,
+        'findaAllBookingsByRoomingListId',
+      );
+
+      spy.mockResolvedValue({
+        roomingListId: 2,
+        roomingListBookings: [
+          {
+            roomingListBookingId: 43,
+            roomingList: undefined,
+            booking: {
+              bookingId: 5,
+              eventId: 1,
+              hotelId: 101,
+              guestName: 'David Brown',
+              guestPhoneNumber: '5678901234',
+              checkInDate: '2025-09-06',
+              checkOutDate: '2025-09-11',
+              roomingListBookings: undefined,
+            },
+            roomingListId: 2,
+            bookingId: 5,
+          },
+          {
+            roomingListBookingId: 42,
+            roomingList: undefined,
+            booking: {
+              bookingId: 4,
+              eventId: 1,
+              hotelId: 101,
+              guestName: 'Sarah Lee',
+              guestPhoneNumber: '4567890123',
+              checkInDate: '2025-09-05',
+              checkOutDate: '2025-09-10',
+              roomingListBookings: undefined,
+            },
+            roomingListId: 2,
+            bookingId: 4,
+          },
+        ],
+      } as any);
+
+      const result = await service.getRoomingListBookings({
+        roomingListId: '2',
+      });
+
+      expect(result.roomingListId).toBe(2);
+      expect(result.bookings).toHaveLength(2);
+      expect(spy).toHaveBeenCalled();
+    });
   });
 
   describe('getAllRoomingLists', () => {
@@ -190,7 +295,7 @@ describe('ReservationService', () => {
       expect(result[0].roomingListId).toBe(testedRoominglistId);
       expect(result[0].roomingListBookings).toHaveLength(2);
       expect(
-        result[0].roomingListBookings.every(
+        result[0].roomingListBookings?.every(
           (rlb) => rlb.roomingListId === testedRoominglistId,
         ),
       ).toBeTruthy();

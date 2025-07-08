@@ -3,6 +3,7 @@ import { ReservationController } from './reservation.controller';
 import { ReservationService } from '../services/reservation.service';
 import { RoomingListsRepository } from '../repositories/rooming-lists.repository';
 import { RoomingListsQueryDTO } from '../dto/rooming-lists-query.dto';
+import { BadRequestException } from '@nestjs/common';
 
 describe('ReservationController', () => {
   let controller: ReservationController;
@@ -15,6 +16,7 @@ describe('ReservationController', () => {
         {
           provide: ReservationService,
           useValue: {
+            getRoomingListBookings: jest.fn(),
             getAllRoomingLists: jest.fn(),
             getAllRoomingListsWithBookings: jest.fn(),
           },
@@ -32,6 +34,76 @@ describe('ReservationController', () => {
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
+  });
+
+  describe('rooming-list/:id/bookings', () => {
+    it('should throw BadRequestException when roomingListId is invalid', async () => {
+      const spy = jest.spyOn(service, 'getRoomingListBookings');
+      spy.mockRejectedValue(new BadRequestException());
+
+      const invalidRoomingListId = 'invalid';
+
+      await expect(() =>
+        controller.getRoomingListBookings(invalidRoomingListId),
+      ).rejects.toThrow(BadRequestException);
+      expect(spy).toHaveBeenCalled();
+    });
+
+    it('should throw BadRequestException when roomingList is not found', async () => {
+      const spy = jest.spyOn(service, 'getRoomingListBookings');
+      spy.mockRejectedValue(new BadRequestException());
+
+      const roomingListIdThatDontMatch = '11';
+
+      await expect(() =>
+        controller.getRoomingListBookings(roomingListIdThatDontMatch),
+      ).rejects.toThrow(BadRequestException);
+      expect(spy).toHaveBeenCalled();
+    });
+
+    it('should return a empty bookings array when roomingList has no bookings', async () => {
+      const spy = jest.spyOn(service, 'getRoomingListBookings');
+      spy.mockResolvedValue({ roomingListId: 1, bookings: [] });
+
+      const result = await controller.getRoomingListBookings('1');
+
+      expect(result.roomingListId).toBe(1);
+      expect(result.bookings).toEqual([]);
+      expect(spy).toHaveBeenCalled();
+    });
+
+    it('should return a bookings array when roomingList has bookings', async () => {
+      const spy = jest.spyOn(service, 'getRoomingListBookings');
+      spy.mockResolvedValue({
+        roomingListId: 2,
+        bookings: [
+          {
+            bookingId: 5,
+            eventId: 1,
+            hotelId: 101,
+            guestName: 'David Brown',
+            guestPhoneNumber: '5678901234',
+            checkInDate: '2025-09-06',
+            checkOutDate: '2025-09-11',
+          },
+          {
+            bookingId: 4,
+            eventId: 1,
+            hotelId: 101,
+            guestName: 'Sarah Lee',
+            guestPhoneNumber: '4567890123',
+            checkInDate: '2025-09-05',
+            checkOutDate: '2025-09-10',
+          },
+        ],
+      });
+
+      const result = await controller.getRoomingListBookings('2');
+
+      expect(result.roomingListId).toBe(2);
+      expect(result.bookings).toHaveLength(2);
+      expect(spy).toHaveBeenCalled();
+    });
   });
 
   describe('rooming-lists', () => {
@@ -193,7 +265,7 @@ describe('ReservationController', () => {
       expect(result[0].roomingListId).toBe(testedRoominglistId);
       expect(result[0].roomingListBookings).toHaveLength(2);
       expect(
-        result[0].roomingListBookings.every(
+        result[0].roomingListBookings?.every(
           (rlb) => rlb.roomingListId === testedRoominglistId,
         ),
       ).toBeTruthy();
