@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { BookingService } from './services/booking.service';
-import { BookingController } from './controllers/booking.controller';
+import { ReservationService } from './services/reservation.service';
+import { ReservationController } from './controllers/reservation.controller';
 import { RoomingListsRepository } from './repositories/rooming-lists.repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RoomingLists } from './entities/rooming-lists.entity';
@@ -13,12 +13,12 @@ import { RoomingListBookingsRepository } from './repositories/rooming-list-booki
   imports: [
     TypeOrmModule.forFeature([RoomingLists, Bookings, RoomingListBookings]),
   ],
-  controllers: [BookingController],
+  controllers: [ReservationController],
   providers: [
-    BookingService,
+    ReservationService,
     RoomingListsRepository,
     BookingsRepository,
     RoomingListBookingsRepository,
   ],
 })
-export class BookingModule {}
+export class ReservationModule {}

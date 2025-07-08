@@ -1,12 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
-import { Bookings } from 'src/booking/entities/bookings.entity';
-import { RoomingListBookings } from 'src/booking/entities/rooming-list-bookings.entity';
-import { RoomingLists } from 'src/booking/entities/rooming-lists.entity';
-import { BookingsRepository } from 'src/booking/repositories/booking.repository';
-import { RoomingListBookingsRepository } from 'src/booking/repositories/rooming-list-bookings.repository';
-import { RoomingListsRepository } from 'src/booking/repositories/rooming-lists.repository';
+import { Bookings } from 'src/reservation/entities/bookings.entity';
+import { RoomingListBookings } from 'src/reservation/entities/rooming-list-bookings.entity';
+import { RoomingLists } from 'src/reservation/entities/rooming-lists.entity';
+import { BookingsRepository } from 'src/reservation/repositories/booking.repository';
+import { RoomingListBookingsRepository } from 'src/reservation/repositories/rooming-list-bookings.repository';
+import { RoomingListsRepository } from 'src/reservation/repositories/rooming-lists.repository';
 
 @Injectable()
 export class SeedService {

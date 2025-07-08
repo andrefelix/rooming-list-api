@@ -1,19 +1,19 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { BookingController } from './booking.controller';
-import { BookingService } from '../services/booking.service';
+import { ReservationController } from './reservation.controller';
+import { ReservationService } from '../services/reservation.service';
 import { RoomingListsRepository } from '../repositories/rooming-lists.repository';
 import { RoomingListsQueryDTO } from '../dto/rooming-lists-query.dto';
 
-describe('BookingController', () => {
-  let controller: BookingController;
-  let service: BookingService;
+describe('ReservationController', () => {
+  let controller: ReservationController;
+  let service: ReservationService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [BookingController],
+      controllers: [ReservationController],
       providers: [
         {
-          provide: BookingService,
+          provide: ReservationService,
           useValue: {
             getAllRoomingListsWithBookings: jest.fn(),
           },
@@ -25,8 +25,8 @@ describe('BookingController', () => {
       ],
     }).compile();
 
-    controller = module.get<BookingController>(BookingController);
-    service = module.get(BookingService);
+    controller = module.get<ReservationController>(ReservationController);
+    service = module.get(ReservationService);
   });
 
   it('should be defined', () => {

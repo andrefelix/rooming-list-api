@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { BookingService } from './booking.service';
+import { ReservationService } from './reservation.service';
 import { RoomingListsRepository } from '../repositories/rooming-lists.repository';
 import { RoomingListsQueryDTO } from '../dto/rooming-lists-query.dto';
 
-describe('BookingService', () => {
-  let service: BookingService;
+describe('ReservationService', () => {
+  let service: ReservationService;
   let roomingListsRepo: jest.Mocked<RoomingListsRepository>;
 
   beforeEach(async () => {
@@ -14,7 +14,7 @@ describe('BookingService', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        BookingService,
+        ReservationService,
         {
           provide: RoomingListsRepository,
           useValue: mockRoomingListsRepo,
@@ -22,7 +22,7 @@ describe('BookingService', () => {
       ],
     }).compile();
 
-    service = module.get<BookingService>(BookingService);
+    service = module.get<ReservationService>(ReservationService);
     roomingListsRepo = module.get(RoomingListsRepository);
   });
 

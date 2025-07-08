@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { BookingModule } from './booking/booking.module';
-import { RoomingLists } from './booking/entities/rooming-lists.entity';
-import { Bookings } from './booking/entities/bookings.entity';
-import { RoomingListBookings } from './booking/entities/rooming-list-bookings.entity';
+import { ReservationModule } from './reservation/reservation.module';
+import { RoomingLists } from './reservation/entities/rooming-lists.entity';
+import { Bookings } from './reservation/entities/bookings.entity';
+import { RoomingListBookings } from './reservation/entities/rooming-list-bookings.entity';
 import { SeedModule } from './seeds/seed.module';
 
 @Module({
@@ -20,7 +20,7 @@ import { SeedModule } from './seeds/seed.module';
       entities: [RoomingLists, Bookings, RoomingListBookings],
       synchronize: process.env.NODE_ENV !== 'production',
     }),
-    BookingModule,
+    ReservationModule,
     SeedModule,
   ],
   controllers: [],
