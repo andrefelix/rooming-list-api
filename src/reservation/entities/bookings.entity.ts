@@ -25,5 +25,5 @@ export class Bookings {
   checkOutDate: string;
 
   @OneToMany(() => RoomingListBookings, (rlb) => rlb.booking)
-  roomingListBookings: RoomingListBookings[];
+  roomingListBookings?: RoomingListBookings[];
 }

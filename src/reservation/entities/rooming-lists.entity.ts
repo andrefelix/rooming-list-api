@@ -29,7 +29,7 @@ export class RoomingLists {
   agreement_type: string;
 
   @OneToMany(() => RoomingListBookings, (rlb) => rlb.roomingList)
-  roomingListBookings: RoomingListBookings[];
+  roomingListBookings?: RoomingListBookings[];
 
   @Expose()
   bookingsCount?: number;
