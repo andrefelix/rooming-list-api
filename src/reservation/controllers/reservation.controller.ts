@@ -7,6 +7,11 @@ export class ReservationController {
   constructor(private readonly reservationService: ReservationService) {}
 
   @Get('rooming-lists')
+  getAllRoomingLists(@Query() query: RoomingListsQueryDTO) {
+    return this.reservationService.getAllRoomingLists(query);
+  }
+
+  @Get('rooming-list-bookings')
   getAllRoomingListsWithBookings(@Query() query: RoomingListsQueryDTO) {
     return this.reservationService.getAllRoomingListsWithBookings(query);
   }

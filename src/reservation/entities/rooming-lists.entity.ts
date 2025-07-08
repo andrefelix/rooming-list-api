@@ -1,5 +1,6 @@
 import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
 import { RoomingListBookings } from './rooming-list-bookings.entity';
+import { Expose } from 'class-transformer';
 
 @Entity()
 export class RoomingLists {
@@ -29,4 +30,7 @@ export class RoomingLists {
 
   @OneToMany(() => RoomingListBookings, (rlb) => rlb.roomingList)
   roomingListBookings: RoomingListBookings[];
+
+  @Expose()
+  bookingsCount?: number;
 }

@@ -10,6 +10,32 @@ export class RoomingListsRepository {
     private readonly repo: Repository<RoomingLists>,
   ) {}
 
+  async findAllWithBookingsCountOnly(filters: {
+    rfpName?: string;
+    agreement_type?: string;
+  }): Promise<RoomingLists[]> {
+    const query = this.repo
+      .createQueryBuilder('roomingList')
+      .loadRelationCountAndMap(
+        'roomingList.bookingsCount',
+        'roomingList.roomingListBookings',
+      );
+
+    if (filters.rfpName) {
+      query.andWhere('roomingList.rfpName ILIKE :rfpName', {
+        rfpName: `%${filters.rfpName}%`,
+      });
+    }
+
+    if (filters.agreement_type) {
+      query.andWhere('roomingList.agreement_type = :agreement_type', {
+        agreement_type: filters.agreement_type,
+      });
+    }
+
+    return query.getMany();
+  }
+
   async findAllWithBookings(filters: {
     rfpName?: string;
     agreement_type?: string;
